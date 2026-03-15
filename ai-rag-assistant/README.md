@@ -1,49 +1,63 @@
-# AI RAG Knowledge Assistant 🧠
+# AI RAG Knowledge Assistant with Endee
 
-A Streamlit app for Retrieval-Augmented Generation using ML documents.
+Streamlit app for Retrieval-Augmented Generation powered by **Endee** vector database.
 
-## 🚀 Quick Start
+## Quick Start
 
-1. **Install dependencies:**
+1. **Start Endee server** (persistent data in `./endee-data`):
 
    ```bash
+   docker compose up -d
+   ```
+
+   Verify: http://localhost:8080
+
+2. **Install Python deps**:
+
+   ```bash
+   cd ai-rag-assistant
    pip install -r requirements.txt
    ```
 
-2. **(Optional) Set OpenAI API Key for GPT generation:**
+3. **(Optional) OpenAI key**:
 
    ```bash
    cp .env.example .env
-   # Edit .env with your OPENAI_API_KEY
-   source .env  # or export OPENAI_API_KEY=sk-...
+   # Edit .env: OPENAI_API_KEY=sk-...
    ```
 
-3. **Run the app:**
+4. **Run app**:
    ```bash
    streamlit run app.py
    ```
-   Open http://localhost:8501
+   Open http://localhost:8501. App auto-indexes sample ML docs.
 
 ## Features
 
-- Loads docs from `data/documents.txt`
-- SentenceTransformer embeddings (`all-MiniLM-L6-v2`)
-- In-memory cosine similarity vector search
-- OpenAI GPT-4o-mini generation **or local fallback** (no quota issues)
-
-## Troubleshooting
-
-- **No API key?** App auto-falls back to showing context.
-- **Watchdog perf:** `pip install watchdog`
-- HF warnings: Normal on first model download.
+- Endee vector store (HNSW, cosine sim, metadata)
+- SentenceTransformer `all-MiniLM-L6-v2` (dim=384)
+- OpenAI GPT-4o-mini or local fallback
+- Graceful if Endee down (prints warnings)
 
 ## Structure
 
 ```
 ai-rag-assistant/
 ├── app.py              # Streamlit UI
+├── endee_client.py     # Endee HTTP client
 ├── data/documents.txt  # Sample ML docs
-├── embeddings/         # Embedder
-├── database/           # VectorStore
-└── rag/               # Retrieval & Generation
+├── embeddings/         # Doc loader/embedder
+├── rag/               # Retrieval/generation
 ```
+
+## Endee Config
+
+- Port: 8080
+- Collection: `documents`
+- Auth: Optional via `ENDEE_TOKEN` in `.env`
+
+## Troubleshooting
+
+- Endee errors: Check `docker compose logs`
+- No API key: Shows retrieved context
+- HF cache: First run downloads model (~80MB)

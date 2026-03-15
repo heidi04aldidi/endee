@@ -1,11 +1,22 @@
-from embeddings.embedder import generate_embeddings
+from sentence_transformers import SentenceTransformer
+from rag.vector_store import create_collection, add_documents, search
 
-def retrieve_context(query, vector_store):
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    query_embedding = generate_embeddings([query])[0]
+def index_documents(chunks):
+    """
+    Index documents: create collection and add embeddings.
+    """
+    create_collection()
+    embeddings = model.encode(chunks)
+    add_documents(chunks, embeddings)
 
-    results = vector_store.search(query_embedding)
 
-    context = "\n".join(results)
 
-    return context
+def retrieve_context(query):
+
+    query_embedding = model.encode(query)
+
+    results = search(query_embedding)
+
+    return "\n".join(results)
